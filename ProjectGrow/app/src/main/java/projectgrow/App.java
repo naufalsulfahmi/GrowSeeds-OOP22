@@ -1,15 +1,15 @@
-package projectgrow;
+// package projectgrow;
 
-import java.util.ArrayList;
-import java.util.List;
+// import java.util.ArrayList;
+// import java.util.List;
 
-import database.DatabaseConnection;
-import model.Panen;
-import service.PanenService;
+// import database.DatabaseConnection;
+// import model.Panen;
+// import service.PanenService;
 
-public class App {
+// public class App {
 
-    public static void main(String[] args) {
+//     public static void main(String[] args) {
     //     TESTING UNTUK LOGIKA HOME DAN MANAJEMEN PANEN BERBASIS CLI (TANPA UI)
     //     System.out.println("=== SISTEM PERTANIAN BERJALAN ===");
 
@@ -56,5 +56,5 @@ public class App {
     //                 p.getId(), p.getNamaLahan(), p.getJenisTanaman(), p.getJumlahPanen(), p.getSatuan(), p.getKondisiCuaca());
     //     }
     //     System.out.println("--------------------------------------------------\n");
-    }
-}
+//     }
+// }
