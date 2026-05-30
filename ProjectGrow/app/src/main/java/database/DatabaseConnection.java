@@ -35,6 +35,15 @@ public class DatabaseConnection {
                                 "email TEXT NOT NULL UNIQUE, " +
                                 "password TEXT NOT NULL" +
                                 ");";
+        
+        String queryTabelStok = "CREATE TABLE IF NOT EXISTS stok (" +
+                                "id_stok INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                "nama_barang TEXT NOT NULL, " +
+                                "kategori TEXT NOT NULL, " +
+                                "jumlah REAL NOT NULL, " +
+                                "terjual REAL DEFAULT 0, " +
+                                "status TEXT NOT NULL" +
+                ");";
 
         String sql = "CREATE TABLE IF NOT EXISTS panen ("
                    + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -49,6 +58,7 @@ public class DatabaseConnection {
              Statement stmt = conn.createStatement()) {
 
             stmt.executeUpdate(queryTabelUser);
+            stmt.executeUpdate(queryTabelStok);
             stmt.executeUpdate(sql);
 
             File databaseFile = new File("cobagrowseeds.db");
