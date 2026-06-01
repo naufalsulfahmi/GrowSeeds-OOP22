@@ -1,5 +1,8 @@
 package view;
 
+import service.StokService;
+import model.Stok;
+import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,18 +25,28 @@ public class DashboardView extends Application {
 
     private BorderPane mainContainer;
     private ScrollPane panelBeranda;
+    private StokView stokView;
+    private Stage primaryStage;
+    private Label lblStokRendahValue; 
+    private HBox menuBeranda;
+    private HBox menuPanen;
+    private HBox menuStok;
+    private HBox menuSaran;
+    private HBox menuProfil;
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         primaryStage.setTitle("GrowSeeds - Aplikasi Manajemen Pertanian");
 
         mainContainer = new BorderPane();
-
+        stokView = new StokView(() -> updateStokRendahCounter());
         VBox sidebar = createSidebar();
         mainContainer.setLeft(sidebar);
 
         panelBeranda = createBerandaPanel();
         mainContainer.setCenter(panelBeranda);
+        updateStokRendahCounter();
 
         Scene scene = new Scene(mainContainer, 1100, 700);
         primaryStage.setScene(scene);
@@ -58,13 +71,31 @@ public class DashboardView extends Application {
         VBox menuBox = new VBox(10); 
         menuBox.setPadding(new Insets(0, 15, 0, 15));
 
-        HBox menuBeranda = createMenuItem("Beranda", true);
-        HBox menuPanen = createMenuItem("Manajemen Panen", false);
-        HBox menuStok = createMenuItem("Pelacakan Stok", false);
-        HBox menuSaran = createMenuItem("Saran Tani", false);
-        HBox menuProfil = createMenuItem("Profil", false);
+
+        menuBeranda = createMenuItem("Beranda", true);
+        menuPanen = createMenuItem("Manajemen Panen", false);
+        menuStok = createMenuItem("Pelacakan Stok", false);
+        menuSaran = createMenuItem("Saran Tani", false);
+        menuProfil = createMenuItem("Profil", false);
 
         menuBox.getChildren().addAll(menuBeranda, menuPanen, menuStok, menuSaran, menuProfil);
+
+        menuBeranda.setOnMouseClicked(e -> {
+            setMenuActive(menuBeranda);
+            mainContainer.setCenter(panelBeranda);
+            updateStokRendahCounter();
+        });
+
+        menuStok.setOnMouseClicked(e -> {
+            setMenuActive(menuStok);
+            stokView.refreshData();
+            mainContainer.setCenter(stokView);
+        });
+        
+
+        menuPanen.setOnMouseClicked(e -> setMenuActive(menuPanen));
+        menuSaran.setOnMouseClicked(e -> setMenuActive(menuSaran));
+        menuProfil.setOnMouseClicked(e -> setMenuActive(menuProfil));
 
         Label lblKeluar = new Label("Keluar");
         lblKeluar.setFont(Font.font("SansSerif", 18));
@@ -72,11 +103,31 @@ public class DashboardView extends Application {
         HBox footerBox = new HBox(lblKeluar);
         footerBox.setPadding(new Insets(0, 0, 30, 25));
         footerBox.setCursor(Cursor.HAND);
+        footerBox.setOnMouseClicked(e -> {
+            primaryStage.close();
+        });
 
         VBox.setVgrow(menuBox, Priority.ALWAYS); 
 
         sidebar.getChildren().addAll(headerBox, menuBox, footerBox);
         return sidebar;
+    }
+
+    private void setMenuActive(HBox selectedMenu) {
+        HBox[] allMenus = {menuBeranda, menuPanen, menuStok, menuSaran, menuProfil};
+        
+        for (HBox menu : allMenus) {
+            Label lbl = (Label) menu.getChildren().get(0);
+            if (menu == selectedMenu) {
+                menu.setStyle("-fx-background-color: #3C6630; -fx-background-radius: 8;");
+                lbl.setFont(Font.font("SansSerif", FontWeight.BOLD, 15));
+                lbl.setTextFill(Color.WHITE);
+            } else {
+                menu.setStyle("-fx-background-color: transparent; -fx-background-radius: 0;");
+                lbl.setFont(Font.font("SansSerif", FontWeight.NORMAL, 15));
+                lbl.setTextFill(Color.web("#C8DCBE"));
+            }
+        }
     }
 
     private ScrollPane createBerandaPanel() {
@@ -119,12 +170,34 @@ public class DashboardView extends Application {
         lblBannerSub.setStyle(("-fx-text-fill: #DCEBD7;"));
         banner.getChildren().addAll(lblBannerTitle, lblBannerSub);
 
+        VBox cardLahan = createMetricCard("Total Lahan Aktif", "4", "Lahan", "#FFFFFF");
+        VBox cardEstimasi = createMetricCard("Estimasi Panen Bulan Ini", "1.2", "Ton", "#FFFFFF");
+
+        VBox cardStokRendah = new VBox(8);
+        cardStokRendah.setStyle("-fx-background-color: #FFF9E6; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+        cardStokRendah.setPadding(new Insets(20));
+        HBox.setHgrow(cardStokRendah, Priority.ALWAYS);
+
+        Label lblStokTitle = new Label("Peringatan Stok Rendah");
+        lblStokTitle.setFont(Font.font("SansSerif", 14));
+        lblStokTitle.setTextFill(Color.GRAY);
+
+        lblStokRendahValue = new Label("0 Item");
+        lblStokRendahValue.setFont(Font.font("Georgia", FontWeight.BOLD, 26));
+        lblStokRendahValue.setTextFill(Color.web("#294A20"));
+
+        cardStokRendah.getChildren().addAll(lblStokTitle, lblStokRendahValue);
+
+
+        cardStokRendah.setCursor(Cursor.HAND);
+        cardStokRendah.setOnMouseClicked(e -> {
+            setMenuActive(menuStok);
+            stokView.refreshData();
+            mainContainer.setCenter(stokView);
+        });
+
         HBox metricRow = new HBox(20);
-        metricRow.getChildren().addAll(
-            createMetricCard("Total Lahan Aktif", "4", "Lahan", "#FFFFFF"),
-            createMetricCard("Estimasi Panen Bulan Ini", "1.2", "Ton", "#FFFFFF"),
-            createMetricCard("Peringatan Stok Rendah", "2", "Item", "#FFF9E6")
-        );
+        metricRow.getChildren().addAll(cardLahan, cardEstimasi, cardStokRendah);
 
         HBox bottomRow = new HBox(20);
         
@@ -150,6 +223,14 @@ public class DashboardView extends Application {
         scrollPane.setBorder(Border.EMPTY);
 
         return scrollPane;
+    }
+
+    
+    private void updateStokRendahCounter() {
+        if (stokView != null && lblStokRendahValue != null) {
+            int jumlahRendah = stokView.getJumlahStokRendah();
+            lblStokRendahValue.setText(jumlahRendah + " Item");
+        }
     }
 
     private HBox createMenuItem(String text, boolean isActive) {
@@ -229,6 +310,7 @@ public class DashboardView extends Application {
         textBlock.getChildren().addAll(lblTitle, lblDesc);
         return textBlock;
     }
+
     public static void main(String[] args) {
         launch(args);
     }
