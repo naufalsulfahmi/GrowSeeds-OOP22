@@ -1,21 +1,30 @@
 package view;
 
-import service.LoginService;
-import model.Login;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import model.Login;
+import service.LoginService;
 
+import java.util.Objects;
 
 public class LoginView extends Application {
     @Override
@@ -23,13 +32,13 @@ public class LoginView extends Application {
         primaryStage.setTitle("GrowSeeds - Masuk");
 
         VBox root = new VBox();
-        root.setStyle("-fx-background-color: #eef4ee;"); 
+        root.setStyle("-fx-background-color: #eef4ee;");
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(40));
 
         VBox loginCard = new VBox(20);
         loginCard.setStyle("-fx-background-color: white; -fx-background-radius: 20; " +
-                           "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
         loginCard.setPadding(new Insets(40, 45, 40, 45));
         loginCard.setMaxWidth(450);
         loginCard.setPrefWidth(450);
@@ -38,145 +47,152 @@ public class LoginView extends Application {
         lblTitle.setFont(Font.font("Georgia", FontWeight.BOLD, 26));
         lblTitle.setTextFill(Color.web("#323232"));
 
-        Label lblSubtitle = new Label("Masuk untuk memulai berkebun digitalmu");
+        Label lblSubtitle = new Label("Masuk untuk mengelola data pertanian akun Anda");
         lblSubtitle.setFont(Font.font("SansSerif", 13));
         lblSubtitle.setTextFill(Color.GRAY);
 
         VBox headerText = new VBox(5, lblTitle, lblSubtitle);
 
         VBox usernameGroup = new VBox(8);
-        Label lblUsername = new Label("Masukkan Email");
+        Label lblUsername = new Label("Alamat Email");
         lblUsername.setFont(Font.font("SansSerif", 13));
         lblUsername.setTextFill(Color.GRAY);
-        
+
         TextField txtUsername = new TextField();
         txtUsername.setPromptText("petani@growseeds.id");
         txtUsername.setPrefHeight(40);
-        txtUsername.setStyle("-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 0 10 0 10;");
+        txtUsername.setStyle(fieldStyle(10));
         usernameGroup.getChildren().addAll(lblUsername, txtUsername);
 
         VBox passwordGroup = new VBox(8);
         Label lblPassword = new Label("Password");
         lblPassword.setFont(Font.font("SansSerif", 13));
         lblPassword.setTextFill(Color.GRAY);
-        
-        StackPane passwordContainer = new StackPane();
 
         PasswordField txtPassword = new PasswordField();
-        txtPassword.setPromptText("Masukkan password");
-        txtPassword.setPrefHeight(40);
-        txtPassword.setStyle("-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 0 40 0 10;");
-
         TextField txtPasswordVisible = new TextField();
-        txtPasswordVisible.setPromptText("Masukkan password");
-        txtPasswordVisible.setPrefHeight(40);
-        txtPasswordVisible.setStyle("-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 0 40 0 10;");
-        txtPasswordVisible.setVisible(false);
-        txtPasswordVisible.setManaged(false);
-
-        txtPassword.textProperty().bindBidirectional(txtPasswordVisible.textProperty());
-
-        Image imgEyeOpen = new Image("file:src/main/resources/imgEyeOpen.jpg");
-        Image imgEyeClose = new Image("file:src/main/resources/imgEyeClose.jpg");
-
-        ImageView ivMata = new ImageView(imgEyeOpen);
-        ivMata.setFitWidth(20);
-        ivMata.setFitHeight(20);
-        ivMata.setPreserveRatio(true);
-
-        Button btnTogglePassword = new Button();
-        btnTogglePassword.setGraphic(ivMata);
-        btnTogglePassword.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
-        btnTogglePassword.setCursor(Cursor.HAND);
-        
-        StackPane.setAlignment(btnTogglePassword, Pos.CENTER_RIGHT);
-        StackPane.setMargin(btnTogglePassword, new Insets(0, 12, 0, 0));
-
-        btnTogglePassword.setOnAction(e -> {
-            if(txtPassword.isVisible()) {
-                txtPassword.setVisible(false);
-                txtPassword.setManaged(false);
-                txtPasswordVisible.setVisible(true);
-                txtPasswordVisible.setManaged(true);
-                ivMata.setImage(imgEyeClose); 
-            }else {
-                txtPassword.setVisible(true);
-                txtPassword.setManaged(true);
-                txtPasswordVisible.setVisible(false);
-                txtPasswordVisible.setManaged(false);
-                ivMata.setImage(imgEyeOpen); 
-            }
-        });
-
-        passwordContainer.getChildren().addAll(txtPassword, txtPasswordVisible, btnTogglePassword);
+        StackPane passwordContainer = createPasswordContainer(txtPassword, txtPasswordVisible);
         passwordGroup.getChildren().addAll(lblPassword, passwordContainer);
-
 
         Button btnMasuk = new Button("Masuk");
         btnMasuk.setMaxWidth(Double.MAX_VALUE);
         btnMasuk.setPrefHeight(42);
-        btnMasuk.setStyle("-fx-background-color: #294a20; -fx-border-radius: 5; " +
-                          "-fx-font-family: 'SansSerif'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: white;");
+        btnMasuk.setStyle("-fx-background-color: #3C6630; -fx-background-radius: 5; " +
+                "-fx-font-family: 'SansSerif'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: white;");
         btnMasuk.setCursor(Cursor.HAND);
-
 
         HBox footerRegister = new HBox(5);
         footerRegister.setAlignment(Pos.CENTER);
         Label lblBelumPunya = new Label("Belum punya akun?");
         lblBelumPunya.setFont(Font.font("SansSerif", 12));
-        lblBelumPunya.setTextFill(Color.BLACK);
 
         Label lblDaftar = new Label("Daftar sekarang");
         lblDaftar.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
-        lblDaftar.setTextFill(Color.web("#294a20"));
+        lblDaftar.setTextFill(Color.web("#3C6630"));
         lblDaftar.setCursor(Cursor.HAND);
-
-        lblDaftar.setOnMouseClicked(e -> {
-            RegistrasiView registerView = new RegistrasiView();
-            Stage registerStage = new Stage();
-            try{
-                registerView.start(registerStage);
-                primaryStage.close(); 
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        lblDaftar.setOnMouseClicked(e -> bukaRegistrasi(primaryStage));
 
         footerRegister.getChildren().addAll(lblBelumPunya, lblDaftar);
         loginCard.getChildren().addAll(headerText, usernameGroup, passwordGroup, btnMasuk, footerRegister);
         root.getChildren().add(loginCard);
 
         btnMasuk.setOnAction(e -> {
-            String email = txtUsername.getText().trim();
-            String password = txtPassword.getText();
-
-            Login login = new Login();
-            login.setEmail(email);
-            login.setPassword(password);
-
+            Login login = new Login(txtUsername.getText().trim(), txtPassword.getText());
             LoginService service = new LoginService();
 
-            if(service.cekLogin(login)) {
+            if (login.getEmail().isBlank() || login.getPassword().isBlank()) {
+                tampilkanAlert(Alert.AlertType.WARNING, "Data Belum Lengkap",
+                        "Email dan password wajib diisi.", "Lengkapi Data");
+                return;
+            }
+
+            if (service.cekLogin(login)) {
                 DashboardView dashboard = new DashboardView();
                 Stage dashboardStage = new Stage();
                 try {
                     dashboard.start(dashboardStage);
-                    primaryStage.close(); 
+                    primaryStage.close();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            }else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Login Gagal");
-                alert.setHeaderText(null);
-                alert.setContentText("Email atau Password salah / belum terdaftar!");
-                alert.showAndWait();
+            } else {
+                tampilkanAlert(Alert.AlertType.ERROR, "Login Gagal",
+                        "Email atau password tidak sesuai. Periksa kembali data akun Anda.", "Coba Lagi");
+                txtPassword.clear();
+                txtPassword.requestFocus();
             }
         });
+
+        txtPassword.setOnAction(e -> btnMasuk.fire());
+        txtPasswordVisible.setOnAction(e -> btnMasuk.fire());
 
         Scene scene = new Scene(root, 1100, 750);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private StackPane createPasswordContainer(PasswordField passwordField, TextField visibleField) {
+        passwordField.setPromptText("Masukkan password");
+        passwordField.setPrefHeight(40);
+        passwordField.setStyle(fieldStyle(40));
+
+        visibleField.setPromptText("Masukkan password");
+        visibleField.setPrefHeight(40);
+        visibleField.setStyle(fieldStyle(40));
+        visibleField.setVisible(false);
+        visibleField.setManaged(false);
+        passwordField.textProperty().bindBidirectional(visibleField.textProperty());
+
+        Image eyeOpen = loadImage("/imgEyeOpen.jpg");
+        Image eyeClose = loadImage("/imgEyeClose.jpg");
+        ImageView icon = new ImageView(eyeOpen);
+        icon.setFitWidth(20);
+        icon.setFitHeight(20);
+        icon.setPreserveRatio(true);
+
+        Button toggle = new Button();
+        toggle.setGraphic(icon);
+        toggle.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+        toggle.setCursor(Cursor.HAND);
+        StackPane.setAlignment(toggle, Pos.CENTER_RIGHT);
+        StackPane.setMargin(toggle, new Insets(0, 12, 0, 0));
+
+        toggle.setOnAction(e -> {
+            boolean tampilkan = passwordField.isVisible();
+            passwordField.setVisible(!tampilkan);
+            passwordField.setManaged(!tampilkan);
+            visibleField.setVisible(tampilkan);
+            visibleField.setManaged(tampilkan);
+            icon.setImage(tampilkan ? eyeClose : eyeOpen);
+        });
+
+        return new StackPane(passwordField, visibleField, toggle);
+    }
+
+    private Image loadImage(String resource) {
+        return new Image(Objects.requireNonNull(getClass().getResourceAsStream(resource)));
+    }
+
+    private String fieldStyle(int rightPadding) {
+        return "-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-radius: 5; " +
+                "-fx-padding: 0 " + rightPadding + " 0 10;";
+    }
+
+    private void bukaRegistrasi(Stage currentStage) {
+        try {
+            new RegistrasiView().start(new Stage());
+            currentStage.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void tampilkanAlert(Alert.AlertType type, String title, String message, String buttonLabel) {
+        ButtonType button = new ButtonType(buttonLabel, ButtonBar.ButtonData.OK_DONE);
+        Alert alert = new Alert(type, message, button);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {
